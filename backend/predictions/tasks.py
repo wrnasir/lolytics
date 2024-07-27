@@ -2,10 +2,9 @@ import os
 import requests
 from celery import shared_task
 from dotenv import load_dotenv
-import logging
 
-logger = logging.getLogger(__name__)
 load_dotenv()
+api_key = os.environ.get("API_KEY")
 
 @shared_task
 def fetch_player_data(gameName, tagLine):
@@ -18,7 +17,7 @@ def fetch_player_data(gameName, tagLine):
     Returns:
         dict: The JSON response from the Riot API containing player data.
     """
-    check_api_key()
+
     url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}?api_key={api_key}"
     return request_riot_api(url)
 
@@ -33,7 +32,7 @@ def fetch_summoner_data(puuid):
     Returns:
         dict: The JSON response from the Riot API containing summoner data.
     """
-    check_api_key()
+
     url = f"https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}?api_key={api_key}"
     return request_riot_api(url)
 
@@ -48,7 +47,7 @@ def fetch_matches(puuid):
     Returns:
         dict: The JSON response from the Riot API containing match IDs.
     """
-    check_api_key()
+
     url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?queue=420&type=ranked&start=0&count=10&api_key={api_key}"
     return request_riot_api(url)
 
@@ -63,22 +62,9 @@ def fetch_match_data(match_id):
     Returns:
         dict: The JSON response from the Riot API containing match data.
     """
-    check_api_key()
+
     url = f"https://americas.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={api_key}"
     return request_riot_api(url)
-
-def check_api_key():
-    """
-    Check if the RIOT_API_KEY is set in the environment variables.
-
-    Raises:
-        ValueError: If the RIOT_API_KEY is not found in environment variables.
-    """
-    global api_key
-    api_key = os.environ.get("API_KEY")
-    if not api_key:
-        logger.error("API_KEY not found in environment variables")
-        raise ValueError("API_KEY not found in environment variables")
 
 def request_riot_api(url):
     """
@@ -100,5 +86,5 @@ def request_riot_api(url):
         return data
     
     except requests.exceptions.RequestException as e:
-        logger.error(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")
         return None
