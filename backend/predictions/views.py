@@ -6,11 +6,11 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
 
-from tasks import *
+from .tasks import *
 
-def run_player_linear_regression(gameName, tagLine):
+def run_player_linear_regression(request, gameName = 'Smib', tagLine = '6751'):
     """
-    Runs random forest regression on player data from Riot API based on the provided gameName and tagLine.
+    Runs random forest regression on player data from the Riot API based on the provided gameName and tagLine.
 
     Args:
         gameName (str): The gameName of the player.
@@ -23,6 +23,7 @@ def run_player_linear_regression(gameName, tagLine):
     matchIds = fetch_matches(puuid)
 
     kills, deaths, assists, cs, damage = [], [], [], [], []
+    previousGames = []
 
     # Iterate through matches and extract relevant data
     for matchId in matchIds:
@@ -30,11 +31,19 @@ def run_player_linear_regression(gameName, tagLine):
         for participant in match_data['info']['participants']:
             if participant['puuid'] == puuid:
                 # Append features for this match
+                
                 kills.append(participant['kills'])
                 deaths.append(participant['deaths'])
                 assists.append(participant['assists'])
                 cs.append(participant['totalMinionsKilled'])
                 damage.append(participant['totalDamageDealtToChampions'])
+
+                previousGames.append(participant['championName'] + " " + 
+                                     str(participant['kills']) + "-" + 
+                                     str(participant['deaths']) + "-" + 
+                                     str(participant['assists']) + "    |  CS = " + 
+                                     str(participant['totalMinionsKilled']) + " |   Damage = " + 
+                                     str(participant['totalDamageDealtToChampions']))
                 
     data = {
         'kills': kills,
@@ -89,5 +98,14 @@ def run_player_linear_regression(gameName, tagLine):
     last_game_features = np.array([6, 2, 9, 160, 24000, 7, 3, 8, 165, 23000, 5, 2, 10, 150, 20000]).reshape(1, -1)
     last_game_features_scaled = scaler.transform(last_game_features)
     next_game_prediction = model.predict(last_game_features_scaled)
-    print(f'Predicted stats for the next game: {next_game_prediction}')
+    context = {'kills': next_game_prediction[0][0],
+               'deaths': next_game_prediction[0][1],
+               'assists': next_game_prediction[0][2],
+               'cs': next_game_prediction[0][3],
+               'gold': next_game_prediction[0][4],
+               'previousGames' : previousGames,
+               'gameName' : gameName,
+               'tagLine' : tagLine}
+    
+    return context
 

@@ -48,7 +48,7 @@ def fetch_matches(puuid):
         dict: The JSON response from the Riot API containing match IDs.
     """
 
-    url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?queue=420&type=ranked&start=0&count=10&api_key={api_key}"
+    url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?queue=420&type=ranked&start=0&count=100&api_key={api_key}"
     return request_riot_api(url)
 
 @shared_task
