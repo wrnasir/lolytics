@@ -1,12 +1,12 @@
 import os
 import requests
-from celery import shared_task
-from dotenv import load_dotenv
+#from celery import shared_task
+#from dotenv import load_dotenv
 
-load_dotenv()
-api_key = os.environ.get("API_KEY")
+#load_dotenv()
+#api_key = os.environ.get("API_KEY")
+api_key = "RGAPI-25756095-3a16-4826-817d-6341b6c1782b"
 
-@shared_task
 def fetch_player_data(gameName, tagLine):
     """
     Fetch player data from Riot API based on the provided username.
@@ -21,7 +21,6 @@ def fetch_player_data(gameName, tagLine):
     url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}?api_key={api_key}"
     return request_riot_api(url)
 
-@shared_task
 def fetch_summoner_data(puuid):
     """
     Fetch summoner data from Riot API based on the provided summoner ID.
@@ -36,7 +35,6 @@ def fetch_summoner_data(puuid):
     url = f"https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}?api_key={api_key}"
     return request_riot_api(url)
 
-@shared_task
 def fetch_matches(puuid):
     """
     Fetch match IDs from Riot API based on the provided player's PUUID.
@@ -51,7 +49,6 @@ def fetch_matches(puuid):
     url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?queue=420&type=ranked&start=0&count=100&api_key={api_key}"
     return request_riot_api(url)
 
-@shared_task
 def fetch_match_data(match_id):
     """
     Fetch match data from Riot API based on the provided match ID.
